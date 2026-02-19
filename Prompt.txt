@@ -1,0 +1,55 @@
+Project Overview:
+Build a responsive, user-friendly climate decision support website that integrates open satellite/weather data, mapping, user reports, and advisory generation focused on crop stress and climate resilience.
+Core Features:
+User Authentication & Profiles:
+Sign up/in with email or social login (Google/Facebook).
+Profile management with basic info and location.
+Role-based access: standard users and admin.
+Homepage:
+Clear project mission statement and value proposition.
+Navigation menu: Home, How It Works, Dashboard, Submit Reports, Resources, Community, About.
+Latest alerts and news ticker from integrated data.
+How It Works Page:
+Step-by-step explanation with visuals of data sources, advisory generation, user reporting, and community support.
+User Dashboard:
+Personalized view of local weather, satellite imagery overlays (using Mapbox/OpenStreetMap).
+Crop stress advisories generated from ML model or rule-based logic.
+Historical data visualization (charts/graphs) of local climate and crop status.
+Notifications center for alerts via web push and SMS.
+Submit Reports Page:
+Form to upload geo-tagged images/photos (mobile camera or file upload).
+Text input for observations or issues.
+Auto-detect location from metadata or manual input.
+Status tracking of submitted reports.
+Resources Page:
+Curated library with downloadable PDFs, videos, and links on climate-smart agriculture practices.
+Search and filter by topic.
+Community Page:
+Discussion forum or Q&A board for farmers and experts.
+User profiles with badges for contributors.
+Moderation tools for admins.
+About Page:
+Team info, partners, and contact details.
+Data sources and methodology transparency.
+Technical Requirements:
+Frontend: React.js with responsive design for desktop and mobile.
+Backend: Node.js with Express or Django REST framework.
+Database: PostgreSQL with PostGIS extension for geospatial queries.
+Authentication: Firebase Auth or JWT-based system.
+Mapping and Imagery: Integrate Mapbox GL or Leaflet for map rendering with layers from NASA Earthdata, ESA Copernicus, and OpenStreetMap.
+Weather & Satellite Data API: Integrate NASA Earthdata API, OpenWeatherMap, and IMD APIs for real-time weather and satellite imagery updates.
+Storage: AWS S3 or Google Cloud Storage for user-uploaded images and static assets.
+ML Advisory Component: Lightweight crop stress detection model or rule-based logic implemented in Python or Node.js, integrated into backend API.
+Notifications: Web push notifications and SMS alerts using Twilio or MSG91.
+Deployment: Containerized app (Docker) deployed on AWS/GCP/Azure with CI/CD pipeline.
+UI/UX Details:
+Clean, modern, and accessible interface with clear typography and color coding for advisories.
+Interactive maps with zoom, pan, and layer toggling.
+Dashboard charts using libraries like Chart.js or D3.js.
+Mobile-first design with optimized image upload and offline support for reports.
+Additional Notes:
+Prioritize performance and scalability for handling many concurrent users and data requests.
+Ensure data privacy and security best practices for user data.
+Provide admin dashboard to manage users, reports, resources, and content.
+Include multilingual support placeholders for future expansion.
+Please build the website following the above detailed feature set, architecture, and design principles, delivering a fully functional prototype suitable for demonstration and user testing.
