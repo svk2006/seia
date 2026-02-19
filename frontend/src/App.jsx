@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import translations from './translations';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Translation helper function
 const t = (language, key) => {
@@ -595,7 +595,9 @@ export default function App() {
   const fetchReports = async () => {
     try {
       const res = await axios.get(`${API_BASE}/reports`);
-      setReports(res.data);
+      // Handle both old format (array) and new format (paginated object)
+      const reportsList = Array.isArray(res.data) ? res.data : (res.data.reports || []);
+      setReports(reportsList);
     } catch (err) {
       console.error('Error fetching reports:', err);
     }

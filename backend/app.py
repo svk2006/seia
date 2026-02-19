@@ -2,6 +2,11 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 from models import (
     CropStressModel, 
     get_stress_recommendation, 
@@ -21,9 +26,24 @@ from utils import (
     get_ollama_analysis,
     analyze_observations
 )
+from models_db import db, Report
+from llm_service import get_ai_analysis
 
 app = Flask(__name__)
 CORS(app)
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL',
+    'sqlite:///reports.db'
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 # Initialize ML model
 print("Initializing ML model...")
@@ -133,46 +153,53 @@ def submit_report():
         label = get_stress_label(stress_level)
         color = get_stress_color(stress_level)
         
-        # Get AI analysis from Ollama (optional, non-blocking) - now with better observation context
+        # Get AI analysis using configured LLM provider
         ai_analysis = None
+        symptom_text = ', '.join([s.get('symptom', '') for s in (symptom_advice.get('symptom_analysis', []) or [])])
         try:
-            ai_analysis = get_ollama_analysis(
-                crop_type=crop_type,
-                stress_level=stress_level,
-                temperature=weather['temperature'],
-                humidity=weather['humidity'],
-                rainfall=weather['rainfall'],
-                wind_speed=weather['wind_speed'],
-                notes=observations
+            ai_analysis = get_ai_analysis(
+                symptoms=symptom_text or observations,
+                crop_data={
+                    'crop_type': crop_type,
+                    'growth_stage': growth_stage,
+                    'temperature': weather['temperature'],
+                    'humidity': weather['humidity'],
+                    'rainfall': weather['rainfall'],
+                    'wind_speed': weather['wind_speed'],
+                    'stress_level': stress_level
+                }
             )
         except Exception as e:
-            print(f"Ollama analysis failed (non-critical): {str(e)}")
+            print(f"LLM analysis failed (non-critical): {str(e)}")
         
-        report = {
-            'latitude': lat,
-            'longitude': lon,
-            'crop_type': crop_type,
-            'growth_stage': growth_stage,
-            'notes': observations,
-            'observed_symptoms': observed_symptoms,
-            'symptom_analysis': symptom_advice.get('symptom_analysis', []),
-            'combined_assessment': symptom_advice.get('combined_assessment', ''),
-            'action_priority': symptom_advice.get('action_priority', []),
-            'weather': weather,
-            'stress_level': stress_level,
+        # Save to database instead of JSON file
+        report_obj = Report(
+            crop_type=crop_type,
+            growth_stage=growth_stage,
+            stress_level=stress_level,
+            confidence=round(confidence, 2),
+            observations=observed_symptoms,
+            symptom_analysis=symptom_advice.get('symptom_analysis', []),
+            recommendations=recommendation,
+            combined_assessment=symptom_advice.get('combined_assessment', ''),
+            action_priority=symptom_advice.get('action_priority', []),
+            ai_analysis=ai_analysis,
+            ml_based_recommendation=recommendation,
+            location=data.get('location', ''),
+            latitude=lat,
+            longitude=lon
+        )
+        
+        db.session.add(report_obj)
+        db.session.commit()
+        
+        result = report_obj.to_dict()
+        result.update({
             'stress_label': label,
-            'confidence': round(confidence, 2),
             'color': color,
-            'ml_based_recommendation': recommendation,
-            'symptom_specific_advice': symptom_advice.get('symptom_analysis', []),
             'yield_optimization': yield_info,
-            'ai_detailed_analysis': ai_analysis
-        }
-        
-        # Save report
-        success, result = save_report_to_file(report)
-        if not success:
-            return jsonify({'error': 'Failed to save report', 'details': result}), 500
+            'timestamp': report_obj.created_at.isoformat()
+        })
         
         return jsonify(result), 201
     except Exception as e:
@@ -180,10 +207,26 @@ def submit_report():
 
 @app.route('/api/reports', methods=['GET'])
 def get_reports():
-    """Get all submitted reports"""
+    """Get all submitted reports from database"""
     try:
-        reports = load_all_reports()
-        return jsonify(reports), 200
+        # Get query parameters for pagination
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 100, type=int)
+        
+        # Fetch reports from database
+        reports_query = Report.query.order_by(Report.created_at.desc())
+        total = reports_query.count()
+        
+        reports_page = reports_query.paginate(page=page, per_page=per_page)
+        reports = [r.to_dict() for r in reports_page.items]
+        
+        return jsonify({
+            'reports': reports,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'pages': reports_page.pages
+        }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
