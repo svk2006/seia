@@ -27,7 +27,7 @@ from utils import (
     analyze_observations
 )
 from models_db import db, Report
-from llm_service import get_ai_analysis
+from llm_service import get_ai_analysis, get_ollama_analysis
 
 app = Flask(__name__)
 CORS(app)
@@ -154,23 +154,31 @@ def submit_report():
         color = get_stress_color(stress_level)
         
         # Get AI analysis using configured LLM provider
+        llm_provider = os.getenv('LLM_PROVIDER', 'openai')
         ai_analysis = None
         symptom_text = ', '.join([s.get('symptom', '') for s in (symptom_advice.get('symptom_analysis', []) or [])])
+        
+        crop_data_for_llm = {
+            'crop_type': crop_type,
+            'growth_stage': growth_stage,
+            'temperature': weather['temperature'],
+            'humidity': weather['humidity'],
+            'rainfall': weather['rainfall'],
+            'wind_speed': weather['wind_speed'],
+            'stress_level': stress_level
+        }
+
         try:
-            ai_analysis = get_ai_analysis(
-                symptoms=symptom_text or observations,
-                crop_data={
-                    'crop_type': crop_type,
-                    'growth_stage': growth_stage,
-                    'temperature': weather['temperature'],
-                    'humidity': weather['humidity'],
-                    'rainfall': weather['rainfall'],
-                    'wind_speed': weather['wind_speed'],
-                    'stress_level': stress_level
-                }
-            )
+            if llm_provider == 'openai':
+                ai_analysis = get_ai_analysis(symptom_text or observations, crop_data_for_llm)
+            elif llm_provider == 'ollama':
+                ai_analysis = get_ollama_analysis(symptom_text or observations, crop_data_for_llm)
+            else:
+                ai_analysis = "LLM analysis not configured."
         except Exception as e:
             print(f"LLM analysis failed (non-critical): {str(e)}")
+            ai_analysis = "AI analysis failed to generate."
+
         
         # Save to database instead of JSON file
         report_obj = Report(

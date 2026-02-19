@@ -9,7 +9,15 @@ load_dotenv()
 
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
-OLLAMA_BASE_URL = 'http://localhost:11434/api/generate'
+
+# LLM Configuration (choose one)
+LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'openai')  # 'openai', 'huggingface', or 'ollama'
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
+OLLAMA_BASE_URL = os.getenv('OLLAMA_URL', 'http://localhost:11434/api/generate')
+
+# Database
+DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///reports.db')
 
 def get_weather_data(lat, lon):
     """Fetch weather data from OpenWeatherMap API"""
