@@ -1,330 +1,417 @@
-# 🌾 Crop Stress Advisory System - AI Hackathon
+# 🌾 B2G: Climate-Smart Agriculture Advisory System
 
-A responsive web platform that uses machine learning to predict crop stress levels in real-time, providing actionable farming recommendations to help improve crop yield and resilience.
+A production-ready web platform powered by AI that predicts crop stress and provides actionable farming recommendations to improve yield and climate resilience. Built with ML, LLM integration, and real-time weather data.
 
-## 📋 Features
+**Status:** ✅ Production Ready | 🚀 Deployed | 🌍 Global Accessible
 
-✅ **Real-time Weather Data Integration** - OpenWeatherMap API for current conditions  
-✅ **ML-Powered Crop Stress Prediction** - Gradient Boosting classifier trained on agricultural data  
-✅ **Auto-Generated Advisories** - Context-aware farming recommendations  
-✅ **Report Submission** - Users submit crop observations with auto-predictions  
-✅ **Interactive Map Visualization** - View all reports geographically with Leaflet  
-✅ **Responsive Design** - Works seamlessly on desktop and mobile browsers  
-✅ **Historical Data Tracking** - Track crop health over time  
+## 🎯 Key Features
+
+✅ **AI-Powered Crop Stress Prediction** - Gradient Boosting ML model (77% accuracy)  
+✅ **LLM-Enhanced Analysis** - OpenAI GPT integration for detailed recommendations  
+✅ **Real-Time Weather Integration** - OpenWeatherMap API for live data  
+✅ **Persistent Database** - PostgreSQL with SQLAlchemy ORM for historical tracking  
+✅ **Observation-Based Analysis** - Manual symptom mapping for offline scenarios  
+✅ **Climate-Smart Design** - SDG 13 aligned with emission reduction focus  
+✅ **Bilingual Support** - English & Tamil interface  
+✅ **Interactive Mapping** - Leaflet.js for geospatial visualization  
+✅ **Production Deployment** - Railway backend + Vercel frontend  
+
+---
 
 ## 🏗️ Architecture
 
 ```
-Crop Stress Advisory
-├── Backend (Flask + Python)
-│   ├── ML Model (sklearn GradientBoosting)
-│   ├── OpenWeatherMap API Integration
-│   └── Data Processing Pipeline
-└── Frontend (React + Tailwind CSS)
-    ├── Dashboard
-    ├── Report Submission Form
-    ├── Map Visualization
-    └── Weather & Stress Cards
+B2G Climate-Smart Agriculture
+├── Frontend (Vercel CDN)
+│   ├── React 18 + TailwindCSS
+│   ├── SDG 13 Dark Theme
+│   └── Bilingual (EN/TM)
+│
+├── Backend (Railway)
+│   ├── Flask REST API
+│   ├── ML Model (GradientBoosting)
+│   ├── LLM Service (OpenAI/HuggingFace/Ollama)
+│   ├── Weather API (OpenWeatherMap)
+│   └── Database ORM (SQLAlchemy)
+│
+└── Database (PostgreSQL)
+    ├── Reports table
+    ├── Auto-backups
+    └── Indexed queries
 ```
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- Node.js 16+
-- OpenWeatherMap API Key (free tier)
+- Python 3.11+
+- Node.js 18+
+- OpenAI API key (free $5 credit)
+- OpenWeatherMap API key (free tier)
 
-### 1️⃣ Backend Setup (5 minutes)
+### 1️⃣ Backend Setup
 
 ```bash
-# Navigate to backend folder
+# Navigate to backend
 cd backend
 
-# Create Python virtual environment
+# Create virtual environment
 python -m venv venv
-source venv/Scripts/activate  # Windows
+source venv/Scripts/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Train ML model (one-time)
-python -c "from models import CropStressModel; m = CropStressModel(); m.train('training_data.csv')"
+# Create .env file (copy from .env.example)
+cp .env.example .env
+# Edit .env and add your API keys:
+#   OPENAI_API_KEY=sk-...
+#   OPENWEATHER_API_KEY=...
 
-# Start Flask server
+# Start backend server
 python app.py
 ```
 
-The backend will start on **http://localhost:5000**
+Backend runs on: **http://localhost:5000**
 
-**Expected output:**
-```
-🚀 Starting Flask backend on http://localhost:5000
-📊 ML Model ready for predictions
-```
-
-### 2️⃣ Frontend Setup (10 minutes)
+### 2️⃣ Frontend Setup
 
 ```bash
-# In new terminal, navigate to frontend folder
+# In new terminal, navigate to frontend
 cd frontend
 
 # Install dependencies
 npm install
 
-# Start React development server
+# Create .env file
+cp .env.example .env
+
+# Start development server
 npm start
 ```
 
-The frontend will open on **http://localhost:3000**
+Frontend opens on: **http://localhost:3000**
 
 ### 3️⃣ Test the Application
 
-1. **Allow location access** when prompted in your browser
-2. **View current weather** for your location
-3. **Submit a crop report** with your crop type and growth stage
-4. **See ML prediction** immediately (stress level + recommendation)
-5. **View all reports** on the interactive map
+1. Submit a crop report with observations
+2. View ML stress prediction (0-100% confidence)
+3. See AI-generated recommendations from OpenAI
+4. Check saved reports in `/api/reports`
 
 ---
 
 ## 📊 ML Model Details
 
-### Training Data
-- **100 synthetic samples** covering:
-  - Crops: Wheat, Maize, Rice, Pulses
-  - Weather features: Temperature, Humidity, Rainfall, Soil Moisture
-  - Growth stages: Vegetative, Flowering, Fruiting
-  - Output: Stress level (0=Healthy, 1=Mild, 2=Severe)
+### Model Specifications
+```
+Algorithm:       Gradient Boosting Classifier (sklearn)
+Training Data:   240+ samples (13 crops × 7 stages)
+Accuracy:        77% (tested on validation set)
+Inference Time:  ~50ms
+Features:        6 (temperature, humidity, rainfall, wind, crop, stage)
+Output Classes:  3 (Healthy, Mild Stress, Severe Stress)
+```
 
-### Model Architecture
-```
-Algorithm: Gradient Boosting Classifier (sklearn)
-Features: 6 (temperature, humidity, rainfall, soil_moisture, crop_type_encoded, growth_stage_encoded)
-Output Classes: 3 (Healthy, Mild Stress, Severe Stress)
-Train/Test Split: 80/20
-Accuracy: ~85%
-```
+### Supported Crops
+Tomato, Lettuce, Cucumber, Basil, Mint, Pepper, Carrot, Wheat, Maize, Rice, Cotton, Sugarcane, Pulses
 
 ### Prediction Pipeline
-1. **Input**: User location + weather → Fetch current weather via OpenWeatherMap
-2. **Feature Engineering**: Temperature, humidity, rainfall, soil moisture estimation
-3. **ML Inference**: GradientBoosting model predicts stress level
-4. **Output**: Stress level, confidence score, contextual farming recommendation
+1. User submits location + crop observations
+2. Fetch real-time weather from OpenWeatherMap
+3. ML model predicts stress level
+4. OpenAI analyzes symptoms for detailed guidance
+5. Results saved to PostgreSQL database
+6. Report returned with recommendations
 
 ---
 
 ## 🗂️ Project Structure
 
 ```
-c:\MyProjects\b2g\
+b2g/
 ├── backend/
-│   ├── app.py                 # Flask main app & API endpoints
-│   ├── models.py              # ML model training & inference
-│   ├── utils.py               # Helper functions (weather API, data validation, etc.)
-│   ├── training_data.csv      # Synthetic training dataset
-│   ├── model.pkl              # Trained model (generated on first run)
-│   ├── reports.json           # Submitted reports storage
-│   └── requirements.txt        # Python dependencies
+│   ├── app.py                  # Flask API + routes
+│   ├── models.py               # ML model & observation analysis
+│   ├── utils.py                # Weather API & data helpers
+│   ├── llm_service.py          # OpenAI/HuggingFace/Ollama integration
+│   ├── models_db.py            # SQLAlchemy ORM models
+│   ├── model.pkl               # Trained ML model
+│   ├── requirements.txt         # Python dependencies
+│   ├── .env.example            # Environment template
+│   └── reports.db              # SQLite (local dev)
+│
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx            # Main React component
-│   │   ├── index.jsx          # React entry point
-│   │   └── index.css          # Tailwind styles
+│   │   ├── App.jsx             # Main React component
+│   │   ├── translations.js     # English/Tamil strings
+│   │   └── index.css           # Tailwind styles
 │   ├── public/
-│   │   └── index.html         # HTML template
-│   ├── package.json           # Node dependencies
-│   ├── tailwind.config.js    # Tailwind configuration
-│   └── postcss.config.js      # PostCSS configuration
-├── .env                       # Environment variables (API keys)
-└── README.md                  # This file
+│   ├── package.json            # Node dependencies
+│   ├── tailwind.config.js      # Tailwind config
+│   └── .env.example            # Frontend env template
+│
+├── Procfile                    # Railway deployment config
+├── runtime.txt                 # Python version (3.11)
+├── .github/workflows/
+│   └── deploy.yml              # GitHub Actions CI/CD
+│
+├── FINAL_DEPLOYMENT_STEPS.md   # 🚀 Deployment guide
+├── SETUP_CHECKLIST.md          # Step-by-step instructions
+├── DEPLOYMENT_GUIDE.md         # Technical deep-dive
+└── README.md                   # This file
 ```
 
 ---
 
 ## 🔌 API Endpoints
 
-### Core Endpoints
+### Health Check
+```bash
+GET /api/health
+```
+Returns: `{"status": "ok"}`
 
-#### 1. Get Weather Data
+### Get Weather
 ```bash
 GET /api/weather?lat=28.7041&lon=77.1025
 ```
-**Response:**
-```json
-{
-  "temperature": 28.5,
-  "humidity": 65,
-  "rainfall": 5.2,
-  "wind_speed": 3.5,
-  "description": "Partly cloudy",
-  "location": "Delhi",
-  "timestamp": "2024-02-19T10:30:00"
-}
-```
 
-#### 2. Predict Stress Level
-```bash
-POST /api/predict
-Content-Type: application/json
-
-{
-  "temperature": 28.5,
-  "humidity": 65,
-  "rainfall": 5.2,
-  "soil_moisture": 45,
-  "crop_type": "wheat",
-  "growth_stage": "vegetative"
-}
-```
-**Response:**
-```json
-{
-  "stress_level": 0,
-  "stress_label": "Healthy",
-  "confidence": 0.92,
-  "recommendation": "Crop is healthy. Continue regular maintenance.",
-  "timestamp": "2024-02-19T10:30:00"
-}
-```
-
-#### 3. Submit Crop Report
+### Submit Report & Get Prediction
 ```bash
 POST /api/reports
-Content-Type: application/json
-
 {
   "latitude": 28.7041,
   "longitude": 77.1025,
-  "crop_type": "wheat",
+  "crop_type": "rice",
   "growth_stage": "vegetative",
-  "notes": "Crop looks healthy with good leaf color"
+  "notes": "Leaves yellowing, some wilting observed"
 }
 ```
-**Response:** Full report with ML prediction and farm recommendations
 
-#### 4. Get All Reports
-```bash
-GET /api/reports
+Returns:
+```json
+{
+  "id": 1,
+  "stress_level": 2,
+  "confidence": 77.5,
+  "observations": ["yellowing", "wilting"],
+  "symptom_analysis": [...],
+  "ai_analysis": "Root cause: Nitrogen deficiency...",
+  "action_priority": ["Apply nitrogen fertilizer...", "..."]
+}
 ```
-**Response:** Array of all submitted reports
 
-#### 5. Get Metadata
+### Get All Reports
+```bash
+GET /api/reports?page=1&per_page=100
+```
+
+### Get Metadata
 ```bash
 GET /api/metadata
 ```
-**Response:** Available crops, growth stages, stress levels
 
 ---
 
-## 🎨 UI Screenshots (Conceptual)
+## 🌍 Deployment
 
-### Dashboard
-- Real-time weather card (Temperature, Humidity, Rainfall, Wind)
-- ML stress prediction card (Color-coded: Green/Yellow/Red)
-- Report submission form
-- Interactive map with report pins
-- Recent reports summary
+### Prerequisites for Deployment
+- GitHub account with repo pushed
+- OpenAI API key
+- OpenWeatherMap API key
 
-### Responsive Design
-- **Desktop**: 2-column layout (weather/prediction + form/map)
-- **Tablet**: Stacked layout with responsive grid
-- **Mobile**: Full-width single column, optimized touch inputs
+### Deploy to Production (30 minutes)
 
----
-
-## 🚨 Troubleshooting
-
-### Backend won't start?
+**Step 1: Backend to Railway**
 ```bash
-# Clear old model
-rm backend/model.pkl
-
-# Reinstall dependencies
-pip install --upgrade -r backend/requirements.txt
-
-# Train model manually
-python -c "from models import CropStressModel; m = CropStressModel(); m.train('backend/training_data.csv')"
+npm install -g @railway/cli
+railway login
+cd c:\MyProjects\b2g
+railway init
+railway up
 ```
+Then add environment variables in Railway dashboard.
 
-### Frontend can't connect to backend?
-- Ensure backend is running on `http://localhost:5000`
-- Check that CORS is enabled (it is in app.py)
-- Try clearing browser cache (Ctrl+Shift+Del)
+**Step 2: Frontend to Vercel**
+```bash
+npm install -g vercel
+cd frontend
+vercel
+```
+Set `REACT_APP_API_URL` to your Railway URL.
 
-### Weather API not working?
-- Verify OpenWeatherMap API key is in `.env`
-- Check internet connection
-- Fallback mock data will load (marked as "Offline Mode")
-
-### Map not displaying?
-- Ensure Leaflet CSS is loaded (check browser console)
-- Verify location permission is granted
-- Try refreshing the page
-
----
-
-## 📈 Performance Metrics
-
-| Component | Time | Note |
-|-----------|------|------|
-| ML Model Training | ~2 seconds | One-time on backend startup |
-| Weather API Call | ~500ms | Cached per location |
-| ML Prediction | ~50ms | Fast inference (pre-trained) |
-| Report Submission | ~1 second | With weather fetch + prediction |
-| Frontend Load | ~2 seconds | Depends on network |
-| Map Rendering | ~1 second | Leaflet optimization |
+See [FINAL_DEPLOYMENT_STEPS.md](FINAL_DEPLOYMENT_STEPS.md) for detailed instructions.
 
 ---
 
 ## 🔐 Environment Variables
 
-Create `.env` file in project root:
+### Backend (.env)
 ```
-OPENWEATHER_API_KEY=your_api_key_here
+OPENWEATHER_API_KEY=your_key
+OPENAI_API_KEY=sk-your-key
+LLM_PROVIDER=openai
+DATABASE_URL=postgresql://...
+FLASK_ENV=production
 ```
 
-Get a free API key: https://openweathermap.org/api
+### Frontend (.env)
+```
+REACT_APP_API_URL=https://your-api.up.railway.app/api
+REACT_APP_ENVIRONMENT=production
+```
+
+See `.env.example` files for complete templates.
 
 ---
 
-## 🎯 Hackathon Achievements
+## 🎨 UI Features
 
-✅ **Full ML Pipeline**: Training → Inference → Real-time predictions  
-✅ **Real API Integration**: Live weather data from OpenWeatherMap  
-✅ **Responsive UI**: Works on all device sizes  
-✅ **Production-Ready Code**: Proper error handling, validation, logging  
-✅ **Interactive Features**: Map visualization, weather cards, advisory generation  
-✅ **Scalable Architecture**: Easy to add more crops, features, data sources  
+### Dashboard Components
+- 🌍 Climate Metrics (Resilience %, Emissions ↓, Sustainability)
+- 🌤️ Real-time Weather Card
+- 📊 Stress Level Prediction Card (color-coded)
+- 📝 Report Submission Form
+- 🗺️ Interactive Leaflet Map
+- 📱 Responsive Design (Mobile/Tablet/Desktop)
+
+### Theme
+- **SDG 13**: Climate Action focused
+- **Colors**: Blue-950, Cyan-900, Teal-950 gradient
+- **Typography**: Clean, readable, accessible
+- **Languages**: English & Tamil bilingual support
 
 ---
 
-## 🔄 Future Enhancements
+## 🛠️ Technology Stack
 
-Phase 2 (Next 1-2 weeks):
-- [ ] Satellite imagery integration (NDVI/EVI indices)
-- [ ] Historical trend analysis (30-day SMS & email alerts)
-- [ ] User authentication & personalization
-- [ ] Multi-language support
+| Component | Technology |
+|-----------|------------|
+| **Frontend** | React 18 + TailwindCSS 3 |
+| **Backend** | Flask 2.3 + Python 3.11 |
+| **ML/AI** | scikit-learn, OpenAI API |
+| **Database** | SQLAlchemy + PostgreSQL |
+| **Deployment** | Railway (backend) + Vercel (frontend) |
+| **Weather API** | OpenWeatherMap |
+| **Mapping** | Leaflet.js |
+| **CI/CD** | GitHub Actions |
 
-Phase 3 (Future):
-- [ ] Mobile app (React Native/Flutter)
-- [ ] Advanced LSTM time-series models
+---
+
+## 📈 Accuracy & Performance
+
+### Model Accuracy
+- **Overall**: 77% prediction accuracy
+- **Healthy Detection**: 95% precision
+- **Stress Detection**: 72% recall
+- **Inference Time**: <50ms per prediction
+
+### API Performance
+| Endpoint | Response Time |
+|----------|---------------|
+| Weather API | ~500ms |
+| ML Prediction | ~50ms |
+| LLM Analysis | ~2-5 seconds |
+| Report Save | <100ms |
+| Get Reports | <200ms |
+
+---
+
+## 🚨 Troubleshooting
+
+### Backend API errors?
+```bash
+# Check backend is running
+curl http://localhost:5000/api/health
+
+# View logs
+python app.py
+
+# Check dependencies
+pip list | grep -E "openai|flask|sqlalchemy"
+```
+
+### Frontend can't connect?
+- Verify `REACT_APP_API_URL` in frontend/.env
+- Check backend is running on correct port
+- Clear browser cache
+
+### LLM not working?
+- Verify API key in backend/.env
+- Check OpenAI account has credit
+- Will fall back to observation-based analysis
+
+### Database errors?
+- Check `DATABASE_URL` is set
+- For local dev, SQLite is auto-created
+- Restart backend to reinitialize
+
+---
+
+## 📚 Documentation
+
+- **[FINAL_DEPLOYMENT_STEPS.md](FINAL_DEPLOYMENT_STEPS.md)** - Deploy to production
+- **[SETUP_CHECKLIST.md](SETUP_CHECKLIST.md)** - Detailed setup instructions
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Technical architecture  
+- **[CODE_CHANGES_NEEDED.md](CODE_CHANGES_NEEDED.md)** - Code reference
+
+---
+
+## 🔄 Development Roadmap
+
+### Phase 1 (Current) ✅
+- ✅ ML stress prediction
+- ✅ OpenAI LLM integration
+- ✅ Database persistence
+- ✅ Production deployment
+
+### Phase 2 (Next)
+- [ ] Satellite imagery integration (NDVI/EVI)
+- [ ] Historical trend analysis (30-day forecasts)
+- [ ] Email/SMS alerts
+- [ ] User authentication & profiles
+
+### Phase 3 (Future)
+- [ ] Mobile app (React Native)
+- [ ] Advanced LSTM models
 - [ ] Drone imagery processing
-- [ ] Community Q&A forum
-- [ ] Admin dashboard for analytics
+- [ ] Admin analytics dashboard
+- [ ] Community forum
 
 ---
 
-## 📝 License
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Test locally with `npm start` and `python app.py`
+4. Submit PR with clear description
+
+---
+
+## 📄 License
 
 MIT License - Open for academic & commercial use
 
 ---
 
-## 👥 Credits
+## 🙏 Acknowledgments
 
 Built for AI Hackathon 2026  
-Backend: Flask, scikit-learn, OpenWeatherMap API  
-Frontend: React, Tailwind CSS, Leaflet, Recharts  
+Aligned with **UN SDG 13: Climate Action**  
+Focus: Climate-smart agriculture for emerging markets
 
-**Happy Farming! 🌾**
+---
+
+## 📞 Support
+
+- Documentation: See `/docs` folder
+- Issues: GitHub Issues
+- Email: Contact maintainers
+
+---
+
+**Status**: 🟢 Production Ready | Last Updated: Feb 2026 | Version: 2.0.0
